@@ -1,0 +1,1037 @@
+Binary Search:
+Assignment Problem : Find First and Last Occurrence of Sorted Array
+
+Activity Problem : Kth smallest Element in sorted matrix
+ 
+Understanding of Question: 
+They will give n*n matrix and position. We have to find position element if we flatten the matrix.
+Ex: [[1,5,9],[10,11,13],[12,13,15]], k = 8
+If we flatten this matrix, it became 
+-> 1-1, 5-2, 9-3, 10-4, 11-5, 12-6, 13-7, 13-8, 15-9 
+(Here has written element followed by their position) 
+So, 8th position element is 13 and Ans is 13.
+Ex.02: [[1,2],[1,3]], k = 2  Ans is 1.. if we flatten  1(1),1(2),2(3),3(4), 2nd position ele is 1.
+Solution Approach:
+•	As the arrays are sorted, we can use binary search approach.
+•	So, the position element should be lie btw start(matrix[0][0]) and end(matrix[rowCount-1][colCount-1]) of array.
+•	According to the above example, start would be 1 and end would be 15.
+•	By using the start & end, find the mid number and checks the position of the mid in the matrix.
+•	To check the position of a mid, we are going to apply binary search on each row and check how many elements are less or equal to mid and count them.
+•	By doing this, we will get to know the position of a mid. Mid position is less than (position < K) a given position(K) then move our start to mid+1. If it is greater (position > K) than K then move our end to mid.
+•	Once start & end on the same position then return either start or end that would be our answer.
+Code:
+
+class Solution {
+    public int kthSmallest(int[][] matrix, int k) 
+        int rowCount = matrix.length;
+        int col = matrix[0].length;
+        int l = matrix[0][0];
+        int h = matrix[rowCount-1][col-1];
+        
+        while(l < h) {
+            int mid = l+(h-l)/2;            
+            int c = count(matrix, rowCount, mid);           
+            if(c < k) {
+                l = mid+1;
+            }else {
+                h = mid;
+            }           
+        }
+        return h;       
+    }
+
+    private static int count(int[][] matrix,int row, int target) {
+        int ans = 0;
+        for(int i=0;i<row;i++) {
+            ans += binarySearch(matrix[i], 0, matrix[i].length-1,target);
+            ans++;
+        }       
+        return ans;
+        
+    }
+    
+    private static int binarySearch(int[] arr, int start, int end, int target) {
+        
+        while(start<=end) {
+            int mid = start + (end - start)/2;
+            
+            if(arr[mid] <= target) {
+                start = mid+1;
+            }else {
+                end = mid-1;
+            }
+        }
+        
+        return end;
+    }
+
+}
+
+
+Activity Problem : Find the duplicate Number
+Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive. There is only one repeated number in nums, return this repeated number.
+You must solve the problem without modifying the array nums and using only constant extra space.
+Ex: 
+nums = [3,1,3,4,2];
+Output : 3
+Solution Approach:
+•	Its not sorted, so we can’t apply binary search approach here.
+•	As they mentioned without modify the given input, so have to track the elements by their occurrence.
+•	Return the element when the occurrence count reaches more than one.
+•	We can use map, stack and If without collection then array.
+Code:
+public int findDuplicate(int[] nums) {
+        
+        int[] checkDup = new int[nums.length];
+        int ans = -1;
+
+        for(int i=0;i<nums.length;i++) {
+		checkDup[nums[i]]++; // here we are increasing on index, they are mentioned the range should between 1 to n.
+		if(checkDup[nums[i]] > 1) {
+			ans = nums[i];
+			break;
+		}
+	}
+	return ans;
+}
+
+Activity Problem : Find the smallest letter Greater than target
+
+Activity Problem : Single Element in sorted Array:
+You are given a sorted array consisting of only integers where every element appears exactly twice, except for one element which appears exactly once.
+Return the single element that appears only once. Your solution must run in O(log n) time and O(1) space.
+Ex. I/P : [1,1,2,3,3,4,4,8,8] , O/P: 2
+Solution Approach:
+•	If we noticed, continuous pair element's 1st element position is odd index and 2nd element position is even index. 
+•	If any single came then after the single element that pair index will change.
+•	So, we will use this as condition to find which place we are going to search whether left/right.
+•	If mid reach 1st index or last index then that should be the single element.
+
+public int singleNonDuplicate(int[] nums) {
+        int left = 0, right = nums.length-1;
+        while(left<right){
+            int mid = (left+right)/2;
+            if(mid==0 || mid==nums.length-1 || (nums[mid]!=nums[mid+1] 
+&& nums[mid]!=nums[mid-1])){
+               	 return nums[mid];
+            }else if((nums[mid]==nums[mid-1] && mid%2>0) 
+|| (nums[mid]==nums[mid+1] && mid%2==0)){
+                	left = mid+1;
+            }else{
+               	 right = mid-1;
+            }
+        }
+        return nums[left];
+    }
+
+
+
+
+Stack:
+Valid Parenthesis
+Question: Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+An input string is valid if:
+•	Open brackets must be closed by the same type of brackets.
+•	Open brackets must be closed in the correct order.
+•	Every close bracket has a corresponding open bracket of the same type.
+Ex: I/P : “()[]{}” O/P: true
+Solution Approach: 
+•	Whenever we are reaching open parenthesis, we will add the relevant closing parenthesis to the stack and when reaching the closing parenthesis will peek() from the stack and that should be matched with current closing parentheses. If it matches then only its valid otherwise its not valid.
+Code:
+Stack<Character> stack = new Stack<>();
+
+        for(char ch : s.toCharArray()){
+            switch(ch){
+                case '(' -> stack.push(')');
+                case '[' -> stack.push(']');
+                case '{' -> stack.push('}');
+                default -> {
+                    if(stack.isEmpty() || stack.peek()!=ch) return false;
+                    else stack.pop();
+                }
+            }
+        }
+
+        return stack.isEmpty();
+
+---------------------------------------------------------
+
+Decode String:
+Question: Given an encoded string, return its decoded string.
+The encoding rule is: k[encoded_string], where the encoded_string inside the square brackets is being repeated exactly k times. Note that k is guaranteed to be a positive integer.
+I/P: 2[abc]3[cd]ef
+O/P: abcabccdcdcdef 
+Solution Approach:
+•	By using stack, will decode string from starting of the string until ‘]’. 
+o	For ex. 2[abc] , insert these to stack until ]. Once we found the ] then will take the alpahabets abc – this loop will run till [ . 
+o	Once found [ then we focus on the number part.
+o	Once number(n) and alphabet string found then, loop the alphabet for n times.
+o	Then add the repeated string to stack again.
+Code:
+public String decodeString(String s) {
+        Stack<String> stack = new Stack<>();
+        for(char ch : s.toCharArray()){
+            if(ch!=']'){
+                stack.push(String.valueOf(ch));
+            }else{
+                StringBuffer str = new StringBuffer();
+                while(!stack.peek().equals("[")){
+                    str.insert(0,stack.pop());
+                }
+                stack.pop();//Removing [
+                StringBuffer num = new StringBuffer();
+                while(!stack.isEmpty() && Character.isDigit(stack.peek().charAt(0))){
+                    num.insert(0,stack.pop());
+                } 
+                String repeating = str.toString().repeat(Integer.parseInt(num.toString()));
+                stack.push(repeating);
+            }
+        }
+
+        StringBuffer ans = new StringBuffer();
+        for(String str: stack) ans.append(str);
+
+        return ans.toString();
+    }
+
+-------------------------
+
+Min Stack
+Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
+Implement the MinStack class:
+•	MinStack() initializes the stack object.
+•	void push(int value) pushes the element value onto the stack.
+•	void pop() removes the element on the top of the stack.
+•	int top() gets the top element of the stack.
+•	int getMin() retrieves the minimum element in the stack.
+You must implement a solution with O(1) time complexity for each function.
+Solution Approach:
+•	In stack pop(), push(), top() all these actions will take only O(1) time complexity.
+•	Have to maintain another minStack to get O(1) on getMin() actions. 
+•	In the minStack() we’ll maintain only lower values.
+Code:
+class MinStack {
+
+    Stack<Integer> stack;
+    Stack<Integer> minStack;
+
+    public MinStack() {
+        stack = new Stack<>();
+        minStack = new Stack<>();
+    }
+    
+    public void push(int value) {
+
+        if(stack.isEmpty()){
+            minStack.push(value);
+        }else{
+            if(minStack.peek() > value){
+                minStack.push(value);
+            }else{
+                minStack.push(minStack.peek());
+            }
+        }
+
+        stack.push(value);
+        
+    }
+    
+    public void pop() {
+        stack.pop();
+        minStack.pop();
+    }
+    
+    public int top() {
+        return stack.peek();
+    }
+    
+    public int getMin() {
+        return minStack.peek();
+    }
+}
+
+
+
+---------------------------------
+Evaluate Reverse Polish
+
+
+Code:
+class Solution {
+    public int evalRPN(String[] tokens) {
+        Stack<Integer> stack = new Stack<>();
+
+        for(int i=0;i<tokens.length;i++){
+
+            switch(tokens[i]){
+                case "+" -> {
+                    stack.push(stack.pop() + stack.pop());
+                }
+                case "*" -> {
+                    stack.push(stack.pop() * stack.pop());
+                }
+                case "-" -> {
+                    int num1 = stack.pop();
+                    int num2 = stack.pop();
+                    stack.push(num2 - num1);
+                }
+                case "/" -> {
+                    int num1 = stack.pop();
+                    int num2 = stack.pop();
+                    stack.push(num2/num1);
+                }
+                default -> stack.push(Integer.parseInt(tokens[i]));
+            }
+        }
+
+        return stack.pop();
+    }
+}
+
+
+
+
+Longest valid Parenthesis
+
+Basic calculator
+The key idea to remember: Use a stack to save the previous result and sign whenever you enter parentheses. Restore them when you exit. That is the central trick behind LeetCode 224.
+
+Largest Rectangle in Histogram
+Given an array of heights, consider width of each height bar is 1. Calculate and return the max area of rectangle.
+Solution Approach:
+ 	•	To frame a rectangle, first we have to find NSE and PSE
+•	NSE – Next Small Element
+•	PSE – Previous Small Element
+•	NSE points used to know, how far we can extend our height, that’s why we checking the next small element of current element.
+•	Same as PSE used to know from where we can calculate the width.
+•	Once found NSE and PSE for current element, by calculate NSE – PSE, will get the width, after that we can multiple our current height with width will get the rectangle area.
+
+
+Code:
+int[] arr = {2,1,5,6,2,3};
+		int maxWidth = 0;
+		int n = arr.length;
+		Stack<Integer> stack = new Stack<>();
+		int[] nse = new int[n];
+		int[] pse = new int[n];
+		
+		//to find nse - next small element
+		for(int i = n-1;i>=0;i--) {
+			while(!stack.isEmpty() && arr[i] <= arr[stack.peek()]) {
+				stack.pop();
+			}
+			
+			nse[i] = stack.isEmpty()?n-1:stack.peek();
+			stack.push(i);
+		}
+		
+		stack.clear();
+		
+		//to find pse - previous small element
+		for(int i=0;i<n;i++) {
+			while(!stack.isEmpty() && arr[i] <= arr[stack.peek()]) {
+				stack.pop();
+			}
+			
+			pse[i] = stack.isEmpty() ? 0:stack.peek();
+			stack.push(i);
+		}
+		
+		for(int i=0;i<n;i++) {
+			int area = arr[i] * (nse[i] - pse[i] - 1); // why -1? For NSE, we are setting N for no small element found and in PSE setting -1 for no small element in previous. So compromise this, we are using -1.
+			maxWidth = Math.max(maxWidth, area);
+		}
+		
+		System.out.println("Max Width : "+maxWidth);
+		System.out.println("Next Small Element "+Arrays.toString(nse));
+		System.out.println("Previous Small Element "+Arrays.toString(pse));
+		
+
+Notes: 
+To convert a Arraylist to int array, we can achieve it by 2 approach
+	Stream
+	Simple for Loop 
+Stream:
+int[] arr = list.stream()
+                .mapToInt(Integer::intValue)
+                .toArray();
+To convert a Stack to int array using Stream
+int[] arr = stack.stream()
+                 .mapToInt(Integer::intValue)
+                 .toArray();
+“Order of array after converting stack to array is, bottom to top order”
+To convert a Stack<String> to String Array
+you can directly convert it to a String[] using toArray()
+
+String[] arr = stack.toArray(new String[0]);
+
+Activity Problem:
+Asteroid Collision:
+We are given an array asteroids of integers representing asteroids in a row. The indices of the asteroid in the array represent their relative position in space.
+For each asteroid, the absolute value represents its size, and the sign represents its direction (positive meaning right, negative meaning left). Each asteroid moves at the same speed.
+Find out the state of the asteroids after all collisions. If two asteroids meet, the smaller one will explode. If both are the same size, both will explode. Two asteroids moving in the same direction will never meet.
+ 
+
+Solution Approach:
+By using Monotonic Logic, we can achieve this one.
+
+
+
+
+
+Code:
+public int[] asteroidCollision(int[] arr) {
+int n = arr.length;
+Stack<Integer> stack = new Stack<>();
+for(int i=0;i<n;i++) {
+	if(!stack.isEmpty() && arr[i] < 0 && stack.peek() > 0) {
+		int temp = arr[i] * -1;
+		while(!stack.isEmpty() && stack.peek() < temp && stack.peek() > 0) {
+			stack.pop();
+		}
+		if(!stack.isEmpty() && stack.peek() == temp) {
+			stack.pop();
+			continue;
+		}
+		if(!stack.isEmpty() && stack.peek() > temp) {
+			continue;
+		}
+	}			
+	stack.push(arr[i]);			
+}
+
+int len = stack.size();
+int[] res = new int[len];
+for(int i = len - 1; i >= 0; i--){
+    res[i] = stack.pop();
+}
+return res;
+}
+
+
+
+
+
+
+Implementing Queue Using Stack:
+Implement a first in first out (FIFO) queue using only two stacks. The implemented queue should support all the functions of a normal queue (push, peek, pop, and empty).
+Implement the MyQueue class:
+	void push(int x) Pushes element x to the back of the queue.
+	int pop() Removes the element from the front of the queue and returns it.
+	int peek() Returns the element at the front of the queue.
+	boolean empty() Returns true if the queue is empty, false otherwise.
+Notes:
+You must use only standard operations of a stack, which means only push to top, peek/pop from top, size, and is empty operations are valid.
+
+Solution Approach:
+	For the question itself they mentioned 2 stacks, so will use 2 stacks. One for Input and another one for output.
+	The given 4 methods, push() and empty() we can directly use the stack operations.
+	But for the pop() and peek() methods only decide whether queue or stack. So for those 2 methods we need to write logic.
+	The logic is whenever the 2 methods are calling that time we have to update output with condition. The condition is output stack have to update when its empty.
+	By this condition, output stack wont update for every pop() and peek() call.
+	What if we push another value? It will be on our input stack, so when our output stack is empty will update it using input stack. Its kind of refilling. In FIFO, ex. First 3(in – 3,2,1) values are in outpu	t stack (out – 1,2,3) and its all are pop() then, then will fill the it with newly added value(in – 5,4) => out – 4,5. So when do pop()/peek() it will return 4.
+Complexity
+Operation	Complexity
+Push()	O(1)
+Pop()	O(1) amortized
+Peek()	O(1) amortized
+Empty()	O(1)
+You might wonder why pop() is O(1) amortized even though it sometimes contains a loop.
+That's because each element is transferred from input to output only once.
+
+
+
+Code:
+class MyQueue {
+    Stack<Integer> input;
+    Stack<Integer> output;
+    public MyQueue() {
+        input = new Stack<>();
+        output = new Stack<>();        
+    }   
+    public void push(int x) {        
+        input.push(x);
+    }    
+    public int pop() {
+        moveToOutput();
+        return output.pop();
+    }    
+    public int peek() {
+        moveToOutput();
+        return output.peek();
+    }    
+    public boolean empty() {
+        return input.isEmpty() && output.isEmpty();
+    }
+    public void moveToOutput(){
+        if(output.isEmpty()){
+            while(!input.isEmpty()){
+                output.push(input.pop());
+            }
+        }
+    }
+}
+Backspace String Compare
+Given two strings s and t, return true if they are equal when both are typed into empty text editors. '#' means a backspace character.
+ 
+Solution Approach:
+	Will use 2 stacks and in stacks store the characters without # with character (ex. b#)
+	Then compare the 2 stacks and return true if all characters are same in both stacks, otherwise false.
+Code:
+public boolean backspaceCompare(String s, String t) {
+        Stack<Character> stack_s = RemoveBackSpace(s);
+        Stack<Character> stack_t = RemoveBackSpace(t);
+        
+        if(stack_s.size() != stack_t.size()){
+            return false;
+        }
+        while(!stack_s.isEmpty() && !stack_t.isEmpty()){
+            if(stack_s.pop() != stack_t.pop()){
+                return false;
+            }
+        }
+        return true;
+    }
+    private static Stack<Character> RemoveBackSpace(String s){
+        Stack<Character> stack = new Stack<>();
+        for(char ch: s.toCharArray()){
+            if(ch!='#'){
+                stack.push(ch);
+            }else if(!stack.isEmpty()) {
+                stack.pop();
+            }
+        }
+        return stack;
+    }
+
+
+
+
+QUEUE:
+Operations in Queue:
+Method	Purpose
+offer(x)	Add element at the end
+poll()	Remove and return the first element
+peek()	Return the first element without removing
+isEmpty()	Check whether queue is empty
+size()	Number of elements
+
+Enqueue() – insert
+Dequeue() – Remove
+Peek()
+isEmpty()
+isFull()
+
+Types of Queue:
+Simple Queue (Linear Queue)
+Circular Queue
+Priority Queue
+Deque(Double Ended Queue)
+
+Priority Queue (Heap):
+•	It will make the array/linked list to be sorted.
+•	Elements are dequeued based on the priority, not inserted order.
+•	Another name of Priority Queue is Heap.
+•	For function calls will stored it in Stack Memory
+•	At computer all the variables will store in Heap Memory.
+•	Max Heap, Min Heap
+•	When we can use this priority queue,
+•	Top k elements
+•	Smallest k element
+•	Largest K element
+Deque(Double Ended Queue)
+•	Insert/Delete at both ends.
+•	Used in sliding window problem, palindrome check.
+•	Operations in Deque:
+•	Initialization:  Deque<> dq = new LinkedList<>() / ArrayDeque<>();
+Operation	Exception Version	Safer/Special-value version
+Add – Front/End	addFirst() / addLast()	offerFirst() / offerLast()
+Remove – Front/End	removeFirst() / removeLast()	pollFirst() / pollLast()
+Read – Front/End	getFirst() / getLast()	peekFirst() / peekLast()
+*add/remove/get methods will throw an exception is value is not there.
+*offer/poll/peek methods will return null/false if value is not there.
+
+Applications of Queue:
+•	Job Scheduling
+•	Print Queue
+
+Problems:
+Design Circular Queue
+Design your implementation of the circular queue. The circular queue is a linear data structure in which the operations are performed based on FIFO (First In First Out) principle, and the last position is connected back to the first position to make a circle. It is also called "Ring Buffer".
+One of the benefits of the circular queue is that we can make use of the spaces in front of the queue. In a normal queue, once the queue becomes full, we cannot insert the next element even if there is a space in front of the queue. But using the circular queue, we can use the space to store new values.
+
+Code:
+class MyCircularQueue {
+    int[] queue;
+    int size,front,rear,capacity; 
+    public MyCircularQueue(int k) {
+        queue = new int[k];
+        capacity = k;
+        front = -1; //Before creating a queue the front / rear pointing no values, that’s why -1.
+        rear = -1;
+        size = 0; // Initially the queue size is 0.    
+    }    
+    public boolean enQueue(int value) {
+        if(isFull()) return false;
+        if(isEmpty()){
+            front = 0; //At first time of initialization only isEmpty() will be true. So that time the first new value will be added to 0th index. That’s why front/ rear is 0.
+            rear = 0;
+        }else{
+            rear = (rear + 1) % capacity; //If the queue is not empty then the new element will add to the rear point. And what if rear is reached the capacity? So that we % rear point with capacity.
+        }
+        queue[rear] = value;
+        size++;
+        return true;        
+    }    
+    public boolean deQueue() {
+        if(isEmpty()) return false;
+       front = (front + 1) % capacity; //As per queue if we removed any element, from front only will remove the element. That’s updating the front point by one.
+       size--;
+       return true;        
+    }    
+    public int Front() {
+        return isEmpty() ? -1 : queue[front];        
+    }
+    
+    public int Rear() {
+        return isEmpty() ? -1 : queue[rear];
+    }
+    
+    public boolean isEmpty() {
+        return size ==0; 
+    }
+    
+    public boolean isFull() {
+        return size == capacity; // size will increase by every inserting, so once size is equal to capacity then its mean to queue is full.’
+    }
+}
+
+Sliding Window Maximum
+You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
+Return the max sliding window.
+ 
+Solution Approach:
+•	To capture the max value of each window, we will use deque (double ended queue) and keep the max value at front. 
+•	Update the deque when the deque elements are less than current element of array.
+•	The deque order will be higher to lower value.
+
+Code:
+public int[] maxSlidingWindow(int[] nums, int k) {
+        if(nums == null || nums.length == 0) return new int[0];       
+        Deque<Integer> dq = new LinkedList<>();
+        int n = nums.length;
+        int[] res = new int[n-k+1];
+
+        
+for(int i=0;i<n;i++){
+            if(!dq.isEmpty() && dq.peekFirst() <= i-k){
+                dq.pollFirst();
+            } //Here we are removing our max value which is outside of the window
+
+            while(!dq.isEmpty() && nums[dq.peekLast()] <= nums[i]){
+                dq.pollLast();
+            } //Here removing the small values from deque in order of last to front. 
+
+            dq.offerLast(i); // adding the index to deque
+
+            if(i >= k-1){ // Here its used to know I is reached the window size. Once I crossed the window size, we have to insert the max value to the result array. 
+                res[i-k+1] = nums[dq.peekFirst()]; // deque first element carry the max value.
+            }
+        }
+
+        return res;
+    }
+
+
+Implement Stack using Queues:
+Implement a last-in-first-out (LIFO) stack using only two queues. The implemented stack should support all the functions of a normal stack (push, top, pop, and empty).
+Can you implement the stack using only one queue?
+
+Solution Approach:
+•	At queue, whatever goes first, that will come out first. But stack, whatever goes last, that only come out first.
+•	To achieve the stack using single queue, whenever we pushing a element, that time will pop each element from queue and push again to the queue till new element before index.
+•	By doing this, all the before added element will come after the newly added element.
+Code:
+class MyStack {
+    Queue<Integer> q;
+    public MyStack() {
+        q = new LinkedList<>();
+    }
+    public void push(int x) {
+        q.offer(x);
+        int size = q.size()-1;
+        for(int i=0;i<size;i++){
+            q.offer(q.poll());
+        }
+    }    
+    public int pop() {
+     return q.poll();   
+    }    
+    public int top() {
+        return q.peek();
+    }    
+    public boolean empty() {
+        return q.isEmpty();
+    }
+}
+
+LINKED LIST:
+Types of Linked List:
+	Singly Linked List
+	Doubly Linked List
+	Circular Linked List
+
+Singly Linked List:
+	Structure: Each node has two parts: data and next(pointer to next node)
+	Navigation: Only forward from head to end.
+	Last node points to null
+	Advantages:
+o	Simple to Implement
+o	Uses less memory than doubly or circular lists
+	Limitations:
+o	Cannot traverse Backward
+Doubly Linked List:
+	Each node has 3 parts: prev, data and next
+	Can move both forward and backward
+	First Node’s prev is NULL and Last Node’s next is NULL.
+	Advantage:
+o	Easy to reverse
+o	Bi-directional traversal
+	Limitations:
+o	Uses more memory(extra pointer)
+
+Circular Linked List:
+	In this list, last node points to first node, forming a loop.
+	Can be singly or doubly circular
+	Advantage:
+o	Efficient for cyclic traversal (like in game, round-robin scheduling)
+o	No NULL checks needs
+	Limitations:
+o	Infinity loops possible, if not handled properly
+
+Operations on LinkedList:
+	Insertion (Beginning, middle, eng)
+	Deletion (Beginning, middle, eng)
+	Traversal
+	Searching
+
+Linked List – Important Pattern
+1.	Implementation Pattern
+2.	Slow and Fast Pointer
+3.	Reversing Linked List
+4.	Partition a LL
+5.	Two LL pattern
+6.	Mark and verify/ Modify Node
+7.	Loop pattern
+8.	Sorting pattern
+
+ACTIVITY:
+Merge Two Sorted List:
+Merge the two sorted lists into one sorted list. Return the head of the merged linked list.
+ 
+
+Solution Approach:
+•	At linked list, all the given input of linked list are pointer of head node. Here also they given the header node of 2 lists.
+•	As they want header node of merged list, first we will create res object of listNode. Then create another pointer which will point the res pointer. 
+•	Iterate the list and compare the values, if any value Is small then assign that node address to our res’s next. 
+•	Will move our res to the res.next pointer to frame the list.
+•	Lastly will return the header node’s next which points the res at starting point. 
+•	Why header.next? while creating res pointer, we will create as -1 value and null as next. After that only will be started assigning the actual sorted list. So returning header will make the list as -1, 1, 1, 2..  So to avoid the -1 at initial, we are returning header.next.
+
+Code:
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        ListNode res = new ListNode(-1);
+        ListNode head = res;
+        while(list1 != null && list2 != null){
+            if(list1.val < list2.val){
+                res.next = list1;
+                list1 = list1.next;
+            }else{
+                res.next = list2;
+                list2 = list2.next;
+            }
+            res = res.next;
+        }
+        res.next = (list1 !=null)? list1 : list2; //Here we are assigning the remaining listNode which is not null
+        return head.next;       
+    }
+}
+
+Reverse Linked List:
+Given the head of a singly linked list, reverse the list, and return the reversed list.
+Ex. Input:  1 -> 2 -> 3 -> 4 -> 5
+Output: 5 -> 4 -> 3 -> 2 -> 1
+
+Solution Approach:
+•	After reverse the list, it should be like, 1 <- 2 <- 3 <- 4 <- 5 and we will return the 5th node.
+•	Here we will use 2 pointers which is prev and next. There is head pointer(which will come as input).
+•	So change the direction from (left to right) to (right to left) will use the prev and next pointer.
+
+•	Consider, prev – head – next. 
+o	Before change the head.next value, will assign it to the next node
+o	Once assigned, will change the head.next as prev.
+o	Once prev address is saved, then change the prev to header.
+o	Then header pointer will change to next.
+o	By doing this, we are changing each nodes pointer
+•	At the end will next will get null and changing header as next then header will also null.
+•	So will return the prev.
+
+Code:
+public ListNode reverseList(ListNode head) {
+        ListNode prev = null;
+        while(head != null){
+            ListNode next = head.next;
+            head.next = prev;
+            prev = head;
+            head = next;
+        }
+        return prev;
+}
+
+
+Middle of Linked List:
+Given the head of a singly linked list, return the middle node of the linked list.
+If there are two middle nodes, return the second middle node.
+ 
+Solution Approach:
+•	Slow and Fast Pointer Approach:
+o	Slow pointer will move by 1x
+o	Fast pointer will move by 2x
+o	Once Fast pointer is null or Fast pointer.next is null then return slow pointer.
+	(Fast == null) => Even case
+	(Fast.next == null) => Odd case.
+
+Code:
+public ListNode middleNode(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+        while(fast != null && fast.next != null){
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow;
+    }
+
+Remove Nth Node From End of List:
+Given the head of a linked list, remove the nth node from the end of the list and return its head.
+Ex. head = [1,2,3,4,5], n = 2
+Output: [1,2,3,5]
+
+Solution Approach:
+Brute-Force: 
+	run a loop for n times to find the size.
+	Once found the length of list, then len – k to find node have to be remove.
+	Then will change the pointer.
+	It will take O(2N).
+Optimized way:
+	Instead of Find the size of the list, move a pointer(fast) for k times.
+	Then move a slow pointer (which initially pointing outside of list) and fast pointer simultaneously until fast became null.
+	Once fast pointer points null then change slow pointer’s next.
+	Difference btw Brute-Force and Optimized way:
+o	At brute-force, first loop runs for n times, then n-k times.
+o	TC for brute-force will be O(n)+O(n-k).
+o	At optimized way, first loop will run for k times, then 2nd loop will run for n-k times, which is remaining nodes from k pointer. 
+Code:
+public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode temp =new ListNode(-1, head);
+        ListNode slow = temp, fast = temp;
+        for(int i=0;i<=n;i++) fast = fast.next;
+        while(fast != null){
+            fast = fast.next;
+            slow = slow.next;
+        }
+        slow.next = slow.next.next;
+        return temp.next; //why returning temp.next? temp initially pointing the head and the slow/fast are pointing to temp only. Slow pointer update the list at end, and slow pointer initial is temp, so temp.next points the head.
+    }
+
+
+
+
+
+
+Linked List Cycle:
+Given head, the head of a linked list, determine if the linked list has a cycle in it.
+The pos is not passed as parameter.
+ 
+
+Code:
+public boolean hasCycle(ListNode head) {
+        ListNode slow = head, fast = head;
+        while(fast!=null && fast.next !=null){
+            slow = slow.next;
+            fast = fast.next.next;
+            if(slow==fast) return true;
+        }
+        return false;
+}
+
+Sort List:
+Given the head of a linked list, return the list after sorting it in ascending order.
+Example:
+Input: head = [4,2,1,3]
+Output: [1,2,3,4]
+Solution Approach:
+	By using merge sort, will sort the list.
+
+
+
+
+Code:
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode sortList(ListNode head) {
+        if(head==null || head.next ==null){
+            return head;
+        }
+        ListNode middle = middleNode(head);
+        ListNode middleNext = middle.next; //As its Linked List, we are separating list from middle.
+        middle.next = null; //By setting this null, the linked list no longer linked.
+
+        ListNode leftNode = sortList(head);
+        ListNode rightNode = sortList(middleNext);
+
+        return mergeLinkedList(leftNode,rightNode);        
+    }
+
+    private ListNode middleNode(ListNode head){
+        ListNode slow = head, fast = head, prev = head;
+        while(fast!=null && fast.next!=null){
+            prev = slow;
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        return prev;
+    }
+
+    private ListNode mergeLinkedList(ListNode l1, ListNode l2){
+        ListNode temp = new ListNode(-1);
+        ListNode head = temp;
+
+        while(l1 !=null && l2 !=null){
+            if(l1.val < l2.val){
+                temp.next = l1;
+                l1 = l1.next;
+            }else{
+                temp.next = l2;
+                l2 = l2.next;
+            }
+            temp = temp.next;
+        }
+
+        temp.next = (l1!=null)? l1:l2;
+
+        return head.next;
+    }
+}
+
+
+
+
+
+
+
+
+Partition List:
+Given the head of a linked list and a value x, partition it such that all nodes less than x come before nodes greater than or equal to x.
+You should preserve the original relative order of the nodes in each of the two partitions
+ 
+
+Solution Approach:
+	The Question is, have to arrange lower value of x on left side and arrange higher value of x on right side.
+	Brute-force: Traversal the list twice, for the 1st traversal arrange the lower values, at 2nd traversal arrange the greater values.
+	Optimized way: Instead of traversal twice, we can arrange low/higher in single traversal.
+o	Have to create 2 lists, one for lower values; another one higher values.
+o	After that connect the lower list to higher list value.
+o	Before returning, Make it null on the end of greater list. 
+Code:
+public ListNode partition(ListNode head, int x) {
+        ListNode less = new ListNode(-1);
+        ListNode greater = new ListNode(-1);
+        ListNode lhead = less, ghead = greater;
+        while(head != null){
+            if(head.val < x){
+                lhead.next = head;
+                head = head.next;
+                lhead = lhead.next; 
+            }else{
+                ghead.next = head;
+                head = head.next;
+                ghead = ghead.next; 
+            }
+        }
+        ghead.next = null;
+        lhead.next = greater.next;
+        return less.next;
+    }
+
+Palindrome Linked List:
+Given the head of a singly linked list, return true if it is a palindrome or false otherwise.
+Ex. Head = [1,2,3,3,2,1];
+Output: true
+Solution Approach:
+	We can check palindrome by below methods,
+1.	Create a new Reverse of Linked List and Checks.
+  1.a.	Extra space – Creating New Linked List
+  1.b.	Two times traversal
+      1.b.i)	One for reverse
+      1.b.ii)	Another one for compare
+2.	Create stack and push elements, until reach the middle list; pop elements from stack and check the remaining elements (after middle) in linked list.
+  2.a	Extra Space – Stack
+3.	Same as above approach(2nd), but without creating stack.
+  3.a	Instead of creating a stack, we are reversing the half of the linked (after middle node) and starts compares the 1st and 2nd.
+
+Code:
+public boolean isPalindrome(ListNode head){
+	ListNode firstHalf = head;
+	ListNode secondHalf = null; 
+	ListNode slow = head;
+	ListNode fast = head;
+	ListNode middle = slow;
+	
+	while(fast != null && fast.next != null){
+		middle = slow;
+		slow = slow.next;
+		fast = fast.next.next;
+	}	
+	ListNode rvsPnt = middle.next; // it traversal list to reverse the list.
+	while(rvsPnt !=null){
+		ListNode next = rvsPnt.next;
+		rvsPnt.next = secondHalf;
+		secondHalf = rvsPnt; //once rvsPnt became null, will get the reversed list head on secondHalf
+		rvsPnt = next;
+	}	
+	while(secondHalf!=null){ //secondHalf only we set null
+		if(firstHalf.val != secondHalf.val) return false;
+		firstHalf = firstHalf.next;
+		secondHalf = secondHalf.next;
+	}
+	
+	return true;	
+}
+
+
+
+
+
+
